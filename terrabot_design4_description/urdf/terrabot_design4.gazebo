@@ -1,0 +1,146 @@
+<?xml version="1.0" ?>
+<robot name="terrabot_design4" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<xacro:property name="body_color" value="Gazebo/Silver" />
+
+<gazebo>
+  <plugin name="control" filename="libgazebo_ros_control.so"/>
+</gazebo>
+
+
+<gazebo reference="base_link">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+  <gravity>true</gravity>
+</gazebo>
+
+<gazebo reference="wheel3_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="wheel2_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="wheel4_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="wheel1_1">
+  <material>${body_color}</material>
+  <mu1>1.0</mu1>
+  <mu2>1.0</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+<gazebo reference="gear2_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+
+<gazebo reference="gear1_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <selfCollide>true</selfCollide>
+</gazebo>
+
+
+
+
+<gazebo reference="imu_link_1">
+  <gravity>true</gravity>
+
+  <sensor name="imu_sensor_1" type="imu">
+    <always_on>true</always_on>
+    <update_rate>10</update_rate>
+    <visualize>true</visualize>
+    <topic>imu_topic_1</topic>
+
+
+    <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+      <topicName>imu_topic_1</topicName>
+      <bodyName>imu_link_1</bodyName>
+      <updateRateHZ>10.0</updateRateHZ>
+      <gaussianNoise>0.0</gaussianNoise>
+      <xyzOffset>0 0 0</xyzOffset>
+      <rpyOffset>0 0 0</rpyOffset>
+      <frameName>imu_link_1</frameName>
+      <initialOrientationAsReference>false</initialOrientationAsReference>
+    </plugin>
+    
+    <pose>0 0 0 0 0 0</pose>
+
+  </sensor>
+</gazebo>
+
+
+<gazebo reference="imu_link_2">
+  <gravity>true</gravity>
+
+  <sensor name="imu_sensor_2" type="imu">
+    <always_on>true</always_on>
+    <update_rate>10</update_rate>
+    <visualize>true</visualize>
+    <topic>imu_topic_2</topic>
+
+
+    <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+      <topicName>imu_topic_2</topicName>
+      <bodyName>imu_link_2</bodyName>
+      <updateRateHZ>10.0</updateRateHZ>
+      <gaussianNoise>0.0</gaussianNoise>
+      <xyzOffset>0 0 0</xyzOffset>
+      <rpyOffset>0 0 0</rpyOffset>
+      <frameName>imu_link_2</frameName>
+      <initialOrientationAsReference>false</initialOrientationAsReference>
+    </plugin>
+    
+    <pose>0 0 0 0 0 0</pose>
+
+  </sensor>
+</gazebo>
+
+<gazebo reference="imu_link_3">
+  <gravity>true</gravity>
+
+  <sensor name="imu_sensor" type="imu">
+    <always_on>true</always_on>
+    <update_rate>10</update_rate>
+    <visualize>true</visualize>
+    <topic>imu_topic_3</topic>
+
+
+    <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+      <topicName>imu_topic_3</topicName>
+      <bodyName>imu_link_3</bodyName>
+      <updateRateHZ>10.0</updateRateHZ>
+      <gaussianNoise>0.0</gaussianNoise>
+      <xyzOffset>0 0 0</xyzOffset>
+      <rpyOffset>0 0 0</rpyOffset>
+      <frameName>imu_link_3</frameName>
+      <initialOrientationAsReference>false</initialOrientationAsReference>
+    </plugin>
+    
+    <pose>0 0 0 0 0 0</pose>
+
+  </sensor>
+</gazebo>
+
+
+
+</robot>

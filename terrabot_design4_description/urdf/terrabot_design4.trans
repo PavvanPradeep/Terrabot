@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<robot name="terrabot_design4" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<transmission name="Revolute_55_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_55">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_55_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>7</mechanicalReduction>
+    <hardwareInterface>VelocityJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+
+<transmission name="Revolute_56_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_56">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_56_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>7</mechanicalReduction>
+    <hardwareInterface>VelocityJointInterface</hardwareInterface><hardwareInterface>VelocityJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+
+<transmission name="Revolute_57_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_57">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_57_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>7</mechanicalReduction>
+    <hardwareInterface>VelocityJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+
+<transmission name="Revolute_58_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_58">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_58_actr">
+    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    <mechanicalReduction>7</mechanicalReduction>
+    <hardwareInterface>VelocityJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+
+<transmission name="Revolute_59_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_59">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_59_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="Revolute_60_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_60">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute60_actr">
+    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+
+
+
+
+
+</robot>

@@ -1,0 +1,25 @@
+Upload the data when this is not running
+
+
+
+**Motor:**
+
+roscore
+
+rosrun rosserial_python serial_node.py /dev/ttyACM1
+
+DC MOTOR:
+rostopic pub /speed_control_1 std_msgs/Int16 "data: 100"
+
+rostopic pub /speed_control_2 std_msgs/Int16 "data: 100"
+
+SERVO MOtors:
+rostopic pub /angle_control_1 std_msgs/Int16 "data: 0"
+rostopic pub /angle_control_2 std_msgs/Int16 "data: 0"
+
+
+
+IMU SENSORS:
+rostopic echo /imu_1
+rostopic echo /imu_2
+rostopic echo /imu_3

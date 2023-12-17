@@ -1,0 +1,5 @@
+int32 id
+float32 angular_velocity
+float32 linear_acceleration
+float32 linear_velocity
+float32 orientation
