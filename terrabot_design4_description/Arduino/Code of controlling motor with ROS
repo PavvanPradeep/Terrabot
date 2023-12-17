@@ -1,0 +1,110 @@
+#include <ros.h>
+#include <std_msgs/Int16.h>
+
+// Motor A connections
+int enA = 9;
+int in1 = 8;
+int in2 = 7;
+// Motor B connections
+int enB = 3;
+int in3 = 5;
+int in4 = 4;
+
+ros::NodeHandle  nh;
+
+int motor1Speed=0;
+int motor2Speed=0;
+
+void SpeedCallback_1(const std_msgs::Int16& msg) {
+  motor1Speed = msg.data;
+}
+
+void SpeedCallback_2(const std_msgs::Int16& msg) {
+  motor2Speed = msg.data;
+}
+
+
+ros::Subscriber<std_msgs::Int16> motor_1("speed_control_1", &SpeedCallback_1);
+ros::Subscriber<std_msgs::Int16> motor_2("speed_control_2", &SpeedCallback_2);
+
+
+
+void speedControl() {
+  // Turn on motors
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  
+  // Accelerate from zero to maximum speed
+  for (int i = 0; i < motor1Speed ; i++) {
+    analogWrite(enA, i);
+  }
+
+  for (int i = 0; i < motor2Speed ; i++) {
+    analogWrite(enB, i);
+    //delay(20);
+  }
+
+}
+
+void setup() {
+  // Set all the motor control pins to outputs
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  
+  // Turn off motors - Initial state
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+
+  nh.initNode();
+ 
+
+  nh.subscribe(motor_1);
+  
+  nh.subscribe(motor_2);
+}
+
+
+void loop() {
+  //directionControl();
+  //delay(1000);
+  speedControl();
+  nh.spinOnce();
+  delay(1000);
+  
+}
+
+// This function lets you control spinning direction of motors
+/*void directionControl() {
+  // Set motors to maximum speed
+  // For PWM maximum possible values are 0 to 255
+  analogWrite(enA, 255);
+  analogWrite(enB, 255);
+
+  // Turn on motor A & B
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  delay(2000);
+  
+  // Now change motor directions
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  delay(2000);
+  
+  // Turn off motors
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}*/

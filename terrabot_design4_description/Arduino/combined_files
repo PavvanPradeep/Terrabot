@@ -1,0 +1,177 @@
+#include <ros.h>
+#include <std_msgs/Int16MultiArray.h>
+#include <Wire.h>
+#include <MPU6050.h>
+#include <Servo.h>
+#include <std_msgs/Int16.h>
+
+
+// Create instance of MPU6050
+MPU6050 mpu_1;
+MPU6050 mpu_2;
+MPU6050 mpu_3;
+Servo myservo1;//servo object to control a servo1
+Servo myservo2;//servo object to control a servo2
+
+
+// Motor A connections
+int enA = 9;
+int in1 = 8;
+int in2 = 7;
+// Motor B connections
+int enB = 3;
+int in3 = 5;
+int in4 = 4;
+
+
+int motor1Speed=0;
+int motor2Speed=0;
+
+
+
+// Servo Motor A connections
+int in5 = 10;
+int in6 = 11;
+
+//variable to store the position
+int Angle_1=0;
+int Angle_2=0;
+
+ros::NodeHandle nh;
+
+void Angle_Callback_1(const std_msgs::Int16& msg) {
+  Angle_1= msg.data;
+}
+
+void Angle_Callback_2(const std_msgs::Int16& msg) {
+  Angle_2= msg.data;
+}
+
+
+void SpeedCallback_1(const std_msgs::Int16& msg) {
+  motor1Speed = msg.data;
+}
+
+void SpeedCallback_2(const std_msgs::Int16& msg) {
+  motor2Speed = msg.data;
+}
+
+
+
+
+std_msgs::Int16MultiArray imu_msg_1;
+std_msgs::Int16MultiArray imu_msg_2;
+std_msgs::Int16MultiArray imu_msg_3;
+
+ros::Publisher imu_publisher_1("imu_1", &imu_msg_1);
+ros::Publisher imu_publisher_2("imu_2", &imu_msg_2);
+ros::Publisher imu_publisher_3("imu_3", &imu_msg_3);
+
+ros::Subscriber<std_msgs::Int16> servo_motor_1("angle_control_1", &Angle_Callback_1);
+ros::Subscriber<std_msgs::Int16> servo_motor_2("angle_control_2", &Angle_Callback_2);
+
+ros::Subscriber<std_msgs::Int16> motor_1("speed_control_1", &SpeedCallback_1);
+ros::Subscriber<std_msgs::Int16> motor_2("speed_control_2", &SpeedCallback_2);
+
+
+void AngleControl() {
+  myservo1.write(Angle_1);
+  //delay(1000);
+  myservo2.write(Angle_2);
+  //delay(1000);
+
+}
+
+
+void speedControl() {
+  // Turn on motors
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  
+  // Accelerate from zero to maximum speed
+  for (int i = 0; i < motor1Speed ; i++) {
+    analogWrite(enA, i);
+  }
+
+  for (int i = 0; i < motor2Speed ; i++) {
+    analogWrite(enB, i);
+    //delay(20);
+  }
+
+}
+
+void setup()
+{
+  
+  mpu_1.initialize();
+  mpu_2.initialize();
+  mpu_3.initialize();
+  myservo1.attach(in5);// attaches the servo on pin 9 to the servo object
+  myservo2.attach(in6);
+
+  // Set all the motor control pins to outputs
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  
+  // Turn off motors - Initial state
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+
+  nh.initNode();
+  
+  nh.advertise(imu_publisher_1);
+  nh.advertise(imu_publisher_2);
+  nh.advertise(imu_publisher_3);
+  
+  nh.subscribe(servo_motor_1);
+  nh.subscribe(servo_motor_2);
+
+  
+  nh.subscribe(motor_1);
+  nh.subscribe(motor_2);
+}
+
+void loop()
+{
+  // Read raw sensor data from MPU6050
+  int16_t ax_1, ay_1, az_1, gx_1, gy_1, gz_1;
+  int16_t ax_2, ay_2, az_2, gx_2, gy_2, gz_2;
+  int16_t ax_3, ay_3, az_3, gx_3, gy_3, gz_3;
+  mpu_1.getMotion6(&ax_1, &ay_1, &az_1, &gx_1, &gy_1, &gz_1);
+  mpu_2.getMotion6(&ax_2, &ay_2, &az_2, &gx_2, &gy_2, &gz_2);
+  mpu_3.getMotion6(&ax_3, &ay_3, &az_3, &gx_3, &gy_3, &gz_3);
+  
+
+  // Populate the IMU data array
+  int16_t imu_data_1[] = {ax_1, ay_1, az_1, gx_1, gy_1, gz_1};
+  int16_t imu_data_2[] = {ax_2, ay_2, az_2, gx_2, gy_2, gz_2};
+  int16_t imu_data_3[] = {ax_3, ay_3, az_3, gx_3, gy_3, gz_3};
+  imu_msg_1.data_length = 6;
+  imu_msg_1.data = imu_data_1;
+  imu_msg_2.data_length = 6;
+  imu_msg_2.data = imu_data_2;
+  imu_msg_3.data_length = 6;
+  imu_msg_3.data = imu_data_3;
+
+  // Publish the IMU data
+  imu_publisher_1.publish(&imu_msg_1);
+  imu_publisher_2.publish(&imu_msg_2);
+  imu_publisher_3.publish(&imu_msg_3);
+
+  //angle control for servo
+  AngleControl();
+
+  //motor control
+  speedControl();
+  
+  nh.spinOnce();
+  delay(1000); // Adjust the delay according to your desired publishing rate
+}

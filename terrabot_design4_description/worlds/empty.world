@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="my_world">
+  
+    <!-- Include Gazebo's default physics -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+  
+    <!-- Specify the gravity -->
+    <physics name="default_physics" default="true" type="ode">
+      <gravity>0 0 -9.8</gravity>
+    </physics>
+  
+    <!-- Add ground plane -->
+    <model name="ground_plane">
+      <pose>0 0 0 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1000 1000</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1</mu>
+                <mu2>1</mu2>
+              </ode>
+            </friction>
+          <!--  <bounce>
+              <restitution_coefficient>0.5</restitution_coefficient>
+              <threshold>1000000.0</threshold>
+            </bounce>-->
+            <contact>
+              <ode/>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1000 1000</size>
+            </plane>
+          </geometry>
+          
+        </visual>
+      </link>
+    </model>
+
+
+
+
+   <model name="my_box">
+      <pose>0 -1 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 0.5 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 0.5 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0 0 1</ambient>
+          </material> 
+        </visual>
+      </link>
+    </model>  
+    
+    
+   <!-- <model name="my_box">
+      <pose>0 -1 0</pose>
+      <static>true</static>
+    <link name='box'>
+    <geometry>
+      <box>
+        <size>1 1 1</size>
+      </box>
+       <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.2 0.2 0.3</size>
+            </box>
+          </geometry>
+    </geometry>
+      <velocity>0 0 0 0 -0 0</velocity>
+      <acceleration>0 0 0 0 -0 0</acceleration>
+      <wrench>0 0 0 0 -0 0</wrench>
+    </link> 
+    </model> -->
+  
+   
+  
+  </world>
+</sdf>

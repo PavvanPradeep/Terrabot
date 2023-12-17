@@ -1,0 +1,60 @@
+
+#include <Servo.h>
+
+#include <ros.h>
+#include <std_msgs/Int16.h>
+
+
+Servo myservo1;//servo object to control a servo1
+Servo myservo2;//servo object to control a servo2
+
+// Servo Motor A connections
+int in1 = 9;
+int in2= 10;
+
+
+ros::NodeHandle  nh;
+//variable to store the position
+int Angle_1=0;
+int Angle_2=0;
+
+void Angle_Callback_1(const std_msgs::Int16& msg) {
+  Angle_1= msg.data;
+}
+
+void Angle_Callback_2(const std_msgs::Int16& msg) {
+  Angle_2= msg.data;
+}
+
+ros::Subscriber<std_msgs::Int16> servo_motor_1("angle_control_1", &Angle_Callback_1);
+ros::Subscriber<std_msgs::Int16> servo_motor_2("angle_control_2", &Angle_Callback_2);
+
+
+void AngleControl() {
+  myservo1.write(Angle_1);
+  //delay(1000);
+  myservo2.write(Angle_2);
+  //delay(1000);
+
+}
+
+
+
+void setup() {
+   myservo1.attach(in1);// attaches the servo on pin 9 to the servo object
+   myservo2.attach(in2);
+   //myservo1.write(Angle_1);
+   //myservo2.write(Angle_2);
+   
+   nh.initNode();
+   nh.subscribe(servo_motor_1);
+   nh.subscribe(servo_motor_2);
+   }
+
+
+void loop() {
+  AngleControl();
+  nh.spinOnce();
+  delay(1000);
+
+}

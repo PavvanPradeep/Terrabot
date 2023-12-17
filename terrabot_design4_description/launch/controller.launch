@@ -1,0 +1,24 @@
+<!--<launch>
+
+
+
+<rosparam file="$(find terrabot_design4_description)/launch/controller.yaml" command="load"/>
+<param name="robot_description" command="$(find xacro)/xacro norder $(find terrabot_design4_description)/urdf/terrabot_design4.xacro" />
+
+<node name="controller_spawner" pkg="controller_manager" type="spawner" args="Revolute_55_position_controller Revolute_56_position_controller Revolute_57_position_controller Revolute_58_position_controller Revolute_59_position_controller Revolute_60_position_controller joint_state_controller"/>
+
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+  <remap from="/joint_states" to="/terrabot_design4/joint_states"/>
+</node>
+
+  
+<node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" />
+
+
+  <node pkg="effort_controllers" type="joint_position_controller" name="Revolute_55_position_controller" />
+  <node pkg="effort_controllers" type="joint_position_controller" name="Revolute_56_position_controller" />
+  <node pkg="effort_controllers" type="joint_position_controller" name="Revolute_57_position_controller" />
+  <node pkg="effort_controllers" type="joint_position_controller" name="Revolute_58_position_controller" />
+  
+
+</launch>-->

@@ -1,0 +1,63 @@
+#include <ros.h>
+#include <std_msgs/Int16MultiArray.h>
+#include <Wire.h>
+#include <MPU6050.h>
+
+// Create instance of MPU6050
+MPU6050 mpu_1;
+MPU6050 mpu_2;
+MPU6050 mpu_3;
+
+ros::NodeHandle nh;
+
+std_msgs::Int16MultiArray imu_msg_1;
+std_msgs::Int16MultiArray imu_msg_2;
+std_msgs::Int16MultiArray imu_msg_3;
+ros::Publisher imu_publisher_1("imu_1", &imu_msg_1);
+ros::Publisher imu_publisher_2("imu_2", &imu_msg_2);
+ros::Publisher imu_publisher_3("imu_3", &imu_msg_3);
+
+
+void setup()
+{
+  
+  mpu_1.initialize();
+  mpu_2.initialize();
+  mpu_3.initialize();
+
+  nh.initNode();
+  nh.advertise(imu_publisher_1);
+  nh.advertise(imu_publisher_2);
+  nh.advertise(imu_publisher_3);
+}
+
+void loop()
+{
+  // Read raw sensor data from MPU6050
+  int16_t ax_1, ay_1, az_1, gx_1, gy_1, gz_1;
+  int16_t ax_2, ay_2, az_2, gx_2, gy_2, gz_2;
+  int16_t ax_3, ay_3, az_3, gx_3, gy_3, gz_3;
+  mpu_1.getMotion6(&ax_1, &ay_1, &az_1, &gx_1, &gy_1, &gz_1);
+  mpu_2.getMotion6(&ax_2, &ay_2, &az_2, &gx_2, &gy_2, &gz_2);
+  mpu_3.getMotion6(&ax_3, &ay_3, &az_3, &gx_3, &gy_3, &gz_3);
+  
+
+  // Populate the IMU data array
+  int16_t imu_data_1[] = {ax_1, ay_1, az_1, gx_1, gy_1, gz_1};
+  int16_t imu_data_2[] = {ax_2, ay_2, az_2, gx_2, gy_2, gz_2};
+  int16_t imu_data_3[] = {ax_3, ay_3, az_3, gx_3, gy_3, gz_3};
+  imu_msg_1.data_length = 6;
+  imu_msg_1.data = imu_data_1;
+  imu_msg_2.data_length = 6;
+  imu_msg_2.data = imu_data_2;
+  imu_msg_3.data_length = 6;
+  imu_msg_3.data = imu_data_3;
+
+  // Publish the IMU data
+  imu_publisher_1.publish(&imu_msg_1);
+  imu_publisher_2.publish(&imu_msg_2);
+  imu_publisher_3.publish(&imu_msg_3);
+
+  nh.spinOnce();
+  delay(1000); // Adjust the delay according to your desired publishing rate
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<launch>
+
+  <param name="robot_description" command="xacro '$(find terrabot_design4_description)/urdf/terrabot_design4.xacro'"/>
+   
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0.01"/>
+
+
+  
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
+  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+  <!-- <arg name="world_name" value="$(find turtlebot3_gazebo/worlds/empty.world"/> -->
+   <arg name="world_name" value="$(find terrabot_design4_description)/worlds/empty.world"/>
+  <arg name="paused" value="false"/>
+  <arg name="use_sim_time" value="true"/>
+  <arg name="gui" value="true"/>
+  <arg name="headless" value="false"/>
+  <arg name="debug" value="false"/>
+  </include>
+        
+        
+        
+    
+  <node pkg="gazebo_ros" type="spawn_model" name="spawning_urdf" args="-param robot_description -urdf -model terrabot_design4_description -x $(arg x) -y $(arg y) -z $(arg z)"/>
+    
+
+  <rosparam command="load" file="$(find terrabot_design4_description)/launch/controller.yaml" ></rosparam>
+
+  <node name="Controller_Spawner" pkg="controller_manager" type="spawner"  args="
+                                                                              Revolute_59_position_controller 
+                                                                              Revolute_60_position_controller 
+                                                                              mobile_base_controller mobile_base_controller1">
+    
+  </node>
+
+  <node name="Terrabot" pkg="terrabot_design4_description" type="robot_gazebo_env.py" output="screen" />
+  
+    
+    
+</launch>
