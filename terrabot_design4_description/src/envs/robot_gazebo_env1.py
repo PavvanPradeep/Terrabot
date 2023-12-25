@@ -68,10 +68,10 @@ class GazeboEnv(gym.Env):
         self.Revolute_59_high = 0.5
         self.Revolute_60_low =  -0.3
         self.Revolute_60_high = -0.5 
-        self.Revolute_wheel_front_low = 100.0
-        self.Revolute_wheel_front_high = 150.0
-        self.Revolute_wheel_rear_low = 100.0
-        self.Revolute_wheel_rear_high = 150.0
+        self.Revolute_wheel_front_low = 10.0
+        self.Revolute_wheel_front_high = 15.0
+        self.Revolute_wheel_rear_low = 10.0
+        self.Revolute_wheel_rear_high = 15.0
         low = np.array([self.Revolute_59_low, self.Revolute_60_low, self.Revolute_wheel_front_low, self.Revolute_wheel_rear_low])
         high = np.array([self.Revolute_59_high, self.Revolute_60_high, self.Revolute_wheel_front_high, self.Revolute_wheel_rear_high])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
@@ -116,17 +116,20 @@ class GazeboEnv(gym.Env):
     
     def change_velocity(self,pub3,pub2):
         self.rate = rospy.Rate(10)
-        data = Twist()
-        data.linear.x = 0.0
-        data.linear.y = 0.0
-        data.linear.z = 0.0
-        data.angular.x = 0.0
-        data.angular.y = 0.0
-        data.angular.z = random.uniform(10,15)
-        print("changed the velocity",data.angular.z)
+        self.data = Twist()
+        self.data.linear.x = 0.0
+        self.data.linear.y = 0.0
+        self.data.linear.z = 0.0
+        self.data.angular.x = 0.0
+        self.data.angular.y = 0.0
+        # self.data.angular.z = random.uniform(10,15)
+        # self.new_velocity = self.data.angular.z
+        self.new_velocity = random.uniform(10, 15)  
+        self.data.angular.z = self.new_velocity
+        print("changed the velocity",self.data.angular.z)
         rospy.loginfo(self.data)
-        pub3.publish(data)
-        pub2.publish(data)
+        pub3.publish(self.data)
+        pub2.publish(self.data)
 
 
     def Revolute_wheel_front(self, pub2):
@@ -160,8 +163,8 @@ class GazeboEnv(gym.Env):
         data3.linear.z = 0.0
         data3.angular.x = 0.0
         data3.angular.y = 0.0
-        data3.angular.z = 0.0
-        rospy.loginfo(data3)
+        data3.angular.z = 10.0
+        # rospy.loginfo(data3)
         pub2.publish(data3)
 
     def Stop_rear(self,pub3):
@@ -172,7 +175,7 @@ class GazeboEnv(gym.Env):
         data3.angular.x = 0.0
         data3.angular.y = 0.0
         data3.angular.z = 0.0
-        rospy.loginfo(data3)
+        # rospy.loginfo(data3)
         pub3.publish(data3)
        
     def reset(self):
@@ -250,17 +253,26 @@ class GazeboEnv(gym.Env):
         # return self.actions_array
 
 #SM's code :
-
+        
         front_wheel_action = np.clip(action[2], self.Revolute_wheel_front_low, self.Revolute_wheel_front_high)
         rear_wheel_action = np.clip(action[3], self.Revolute_wheel_rear_low, self.Revolute_wheel_rear_high)
         self.actions_array.append(self.Revolute_59(self.pub))
         self.actions_array.append(self.Revolute_60(self.pub1))
         data1 = Twist()
         data1.angular.z = front_wheel_action
+        
+        # self.data1.angular.z = front_wheel_action
+        # data1 = self.data.angular.z
+        # data1 = self.new_velocity
+       
         self.pub2.publish(data1)
         time.sleep(0.2)
         data2 = Twist()
+        # self.data1.angular.z = rear_wheel_action
+        # data2 = self.data.angular.z
+        # data2 = self.new_velocity
         data2.angular.z = rear_wheel_action
+
         self.pub3.publish(data2)
         time.sleep(0.2)
         self.rate.sleep()
@@ -272,9 +284,9 @@ class GazeboEnv(gym.Env):
         print("in done function here is the distance",self.distance)
         if self.distance==0:
             return True
-        # elif (self.reward_val)==(self.reward_array[-4]):#toppling work nahi kar raha hein
+        # elif (self.reward_val)==(self.reward_array[-10]):#toppling work nahi kar raha hein
         #     return True
-        elif self.reward_val <= -5:
+        elif self.reward_val <= -10:
             return True
         else: return False
 
@@ -302,7 +314,7 @@ if __name__ == '__main__':
        env = GazeboEnv()
        model = PPO('MlpPolicy', env, verbose=1)
        model.learn(total_timesteps=1000)
-       save_path = os.path.join('/home/arjun/catkin_ws/src/Terrabot__/terrabot_design4_description/src/envs')
+       save_path = os.path.join('/home/srimitravinda/catkin_ws/src/Terrabot__/terrabot_design4_description/src/envs')
        model.save(save_path)
     #    model = PPO.load("envs")
        obs = env.reset()

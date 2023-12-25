@@ -35,11 +35,8 @@ class GazeboEnv(gym.Env):
         # self.observation_space = spaces.Box(low=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), high=np.array([10.0, 10.0, 10.0, 10.0, 10.0, 10.0]), dtype=np.float32)
         # self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32)
         self.rate = rospy.Rate(10)
-        self.box_x = 0
-        self.box_y = -1
-        self.box_z = 0
         self.final_x = 0
-        self.final_y = -7
+        self.final_y = -6
         self.final_z = 0
         self.position_x = 0  # init coordinates
         self.position_y = 0
@@ -58,7 +55,7 @@ class GazeboEnv(gym.Env):
         rospy.Subscriber("gazebo/model_states", ModelStates,self.update_position)
         self.reward_val = 0
         array_size = 1500000
-        self.reward_array = [0] * array_size
+        self.dist_array = [0] * array_size
         self.data = ModelStates()
         self.bot_name = "terrabot_design4_description"
 
@@ -68,10 +65,10 @@ class GazeboEnv(gym.Env):
         self.Revolute_59_high = 0.5
         self.Revolute_60_low =  -0.3
         self.Revolute_60_high = -0.5 
-        self.Revolute_wheel_front_low = 100.0
-        self.Revolute_wheel_front_high = 150.0
-        self.Revolute_wheel_rear_low = 100.0
-        self.Revolute_wheel_rear_high = 150.0
+        self.Revolute_wheel_front_low = 10.0
+        self.Revolute_wheel_front_high = 15.0
+        self.Revolute_wheel_rear_low = 10.0
+        self.Revolute_wheel_rear_high = 15.0
         low = np.array([self.Revolute_59_low, self.Revolute_60_low, self.Revolute_wheel_front_low, self.Revolute_wheel_rear_low])
         high = np.array([self.Revolute_59_high, self.Revolute_60_high, self.Revolute_wheel_front_high, self.Revolute_wheel_rear_high])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
@@ -92,7 +89,7 @@ class GazeboEnv(gym.Env):
         z=round(z,3)
         self.a=[x,y,z]
         print(self.a)
-        self.calculate_reward()
+        self.calculate_dist()
         
     def Revolute_59(self, pub):
         position59 = 0.349
@@ -192,9 +189,9 @@ class GazeboEnv(gym.Env):
 
     def get_obs(self):
         if self.latest_position is None:
-            return [self.box_x, self.box_y, self.box_z, 0, 0, 0]
+            return [self.final_x, self.final_y, self.final_z, 0, 0, 0]
         else:
-            return [self.box_x, self.box_y, self.box_z, round(self.latest_position.x,3),round(self.latest_position.y,3), round(self.latest_position.z,3)]
+            return [self.final_x, self.final_y, self.final_z, round(self.latest_position.x,3),round(self.latest_position.y,3), round(self.latest_position.z,3)]
         
     def step(self,action):
         
@@ -204,39 +201,45 @@ class GazeboEnv(gym.Env):
         continuous_thread = threading.Thread(target= env.run_continuous,args=(action,))
         continuous_thread.daemon = True  # Set the thread as a daemon, it will terminate when the main thread ends
         continuous_thread.start() 
-        # self.move_robot(action)
+        self.distance=self.calculate_dist()
         obs = self.get_obs()
-        print("this is the obs recieved",obs)
-        print("this is the prev reward",self.reward_array[-2])
-        print("this is the one which is 4 steps behind",self.reward_array[-4])
+        # print("this is the obs recieved",obs)
+        print("dist:",self.distance)
+        print("this is the prev reward",self.dist_array[-5])
+        # print("this is the one which is 4 steps behind",self.dist_array[-4])
         reward = self.reward()
-        if self.reward_array[-2]==reward:
+        print("reward:",reward)
+        if self.dist_array[-2]==self.distance:
             self.change_velocity(self.pub3,self.pub2)
             # self.change_angle(self.pub,self.pub1)
-        done=self.done(self.position_x,self.box_x,self.position_y,self.box_y)
+        done=self.done(self.position_x,self.final_x,self.position_y,self.final_y)
         print("completed step function")
         self.stop_continuous_thread()
         return obs,reward,done,{}
     
-    def calculate_reward(self):
+    def calculate_dist(self):
 
         # if self.latest_position is not None:
         x = self.a[0]
         y = self.a[1]
         #z = self.latest_position.z
-        self.distance = sqrt((x - self.box_x) ** 2 + (y - self.box_y) ** 2)
-        self.distance=round(self.distance,3)
-        self.reward_val = -self.distance
-        self.reward_val=round(self.reward_val,3)
-        self.reward_array.append(self.reward_val)
-        print("Reward obtained:", self.reward_val)
+        distance = sqrt((x - self.final_x) ** 2 + (y - self.final_y) ** 2)
+        distance=round(distance,3)
+        self.dist_array.append(distance)
+        return distance
         
     def reward(self):
+        if self.distance ==0:
+            self.reward_val=100
+        elif self.distance<6:
+            # self.reward_val=(self.reward_val+1)
+            self.reward_val=1
+        elif self.distance>6:
+            # self.reward_val=(self.reward_val-1)
+            self.reward_val=-1
+        else : self.reward_val=0
         return self.reward_val
     
-    def prev(self):
-        prev_reward=self.reward()
-        return prev_reward
     
     def move_robot(self,action):
         # if action == 1:
@@ -268,11 +271,14 @@ class GazeboEnv(gym.Env):
     def done(self,x,y,final_x,final_y):
         x = self.a[0]
         y = self.a[1]
-        self.distance = sqrt((x - self.final_x) ** 2 + (y - self.final_y) ** 2)
-        print("in done function here is the distance",self.distance)
-        if self.distance==0:
+        distance = sqrt((x - self.final_x) ** 2 + (y - self.final_y) ** 2)
+        distance=round(distance,3)
+        print("in done function here is the distance",distance)
+        if distance==4:
             return True
-        # elif (self.reward_val)==(self.reward_array[-4]):#toppling work nahi kar raha hein
+        elif self.dist_array[-60]==distance:
+            return True
+        # elif (self.reward_val)==(self.dist_array[-4]):#toppling work nahi kar raha hein
         #     return True
         elif self.reward_val <= -5:
             return True
@@ -301,12 +307,12 @@ class GazeboEnv(gym.Env):
 if __name__ == '__main__':
        env = GazeboEnv()
        model = PPO('MlpPolicy', env, verbose=1)
-       model.learn(total_timesteps=1000)
+       model.learn(total_timesteps=100)
        save_path = os.path.join('/home/arjun/catkin_ws/src/Terrabot__/terrabot_design4_description/src/envs')
        model.save(save_path)
     #    model = PPO.load("envs")
        obs = env.reset()
-       for i in range(50):
+       for i in range(1):
             action, _state = model.predict(obs, deterministic=True)
             obs, reward, done, info = env.step(action)
             if done==True:
